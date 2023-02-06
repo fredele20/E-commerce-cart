@@ -9,6 +9,7 @@ import (
 
 	"github.com/fredele20/e-commerce-cart/database"
 	"github.com/fredele20/e-commerce-cart/models"
+	"github.com/fredele20/e-commerce-cart/tokens"
 	"github.com/fredele20/e-commerce-cart/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -71,7 +72,7 @@ func Signup() gin.HandlerFunc {
 		user.ID = primitive.NewObjectID()
 		user.User_ID = user.ID.Hex()
 
-		token, refereshToken, _ := generate.TokenGenerator(*user.Email, *user.First_Name, *user.Last_Name, user.User_ID)
+		token, refereshToken, _ := tokens.TokenGenerator(*user.Email, *user.First_Name, *user.Last_Name, user.User_ID)
 
 		user.Token = &token
 		user.Referesh_Token = &refereshToken
@@ -121,10 +122,10 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		token, refereshtoken, _ := generate.TokenGenerator(*founduser.Email, *founduser.First_Name, *founduser.Last_Name, founduser.User_ID)
+		token, refereshtoken, _ := tokens.TokenGenerator(*founduser.Email, *founduser.First_Name, *founduser.Last_Name, founduser.User_ID)
 		defer cancel()
 
-		generate.UpdateAllToken(token, refereshtoken, founduser.User_ID)
+		tokens.UpdateAllTokens(token, refereshtoken, founduser.User_ID)
 
 		ctx.JSON(http.StatusFound, founduser)
 	}
