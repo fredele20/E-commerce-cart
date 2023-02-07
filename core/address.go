@@ -98,7 +98,7 @@ func EditHomeAddress() gin.HandlerFunc {
 		}
 
 		var addrCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		// defer cancel()
+		defer cancel()
 		filter := bson.D{primitive.E{Key: "_id", Value: usert_id}}
 		update := bson.D{{Key: "$set", Value: bson.D{primitive.E{Key: "address.0.house_name", Value: editAddress.House}, {Key: "address.0.street_name", Value: editAddress.Street}, {Key: "address.0.city_name", Value: editAddress.City}, {Key: "address.0.pin_code", Value: editAddress.Pincode}}}}
 		_, err = userCollection.UpdateOne(addrCtx, filter, update)
@@ -136,7 +136,7 @@ func EditWorkAddress() gin.HandlerFunc {
 		}
 
 		var addrCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-		// defer cancel()
+		defer cancel()
 		filter := bson.D{primitive.E{Key: "_id", Value: usert_id}}
 		update := bson.D{{Key: "$set", Value: bson.D{primitive.E{Key: "address.1.house_name", Value: editAddress.House}, {Key: "address.1.street_name", Value: editAddress.Street}, {Key: "address.1.city_name", Value: editAddress.City}, {Key: "address.1.pin_code", Value: editAddress.Pincode}}}}
 
