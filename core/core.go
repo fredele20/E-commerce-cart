@@ -35,7 +35,7 @@ func Signup() gin.HandlerFunc {
 
 		validationErr := Validate.Struct(user)
 		if validationErr != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErr})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": validationErr.Error()})
 			return
 		}
 
