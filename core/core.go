@@ -22,6 +22,18 @@ var userCollection *mongo.Collection = database.UserData(database.Client, "Users
 var productCollection = database.ProductData(database.Client, "Products")
 var Validate = validator.New()
 
+func checkUserAlreadyExist(ctx context.Context, field, value string) (count int64, err error) {
+
+	count, err = userCollection.CountDocuments(ctx, bson.M{field: value})
+	if err != nil {
+		log.Panic(err)
+		fmt.Printf("Error checking for %v", field)
+		return count, err
+	}
+
+	return count, nil
+}
+
 func Signup() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var userCtx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -39,30 +51,14 @@ func Signup() gin.HandlerFunc {
 			return
 		}
 
-		count, err := userCollection.CountDocuments(userCtx, bson.M{"email": user.Email})
-		if err != nil {
-			log.Panic(err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		countEmail, _ := checkUserAlreadyExist(userCtx, "email", *user.Email)
+		countPhone, _ := checkUserAlreadyExist(userCtx, "phone", *user.Phone)
+
+		if countEmail > 0 || countPhone > 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user with this phone number or email already exists"})
 			return
 		}
 
-		if count > 0 {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user already exists"})
-			return
-		}
-
-		count, err = userCollection.CountDocuments(userCtx, bson.M{"phone": user.Phone})
-		defer cancel()
-		if err != nil {
-			log.Panic(err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-
-		if count > 0 {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user with this phone number already exists"})
-			return
-		}
 
 		password := utils.HashPassword(*user.Password)
 		user.Password = &password
@@ -88,7 +84,7 @@ func Signup() gin.HandlerFunc {
 
 		defer cancel()
 
-		ctx.JSON(http.StatusCreated, "successfully created a user")
+		ctx.JSON(http.StatusCreated, &user)
 	}
 }
 
