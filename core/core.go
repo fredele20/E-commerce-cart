@@ -51,7 +51,8 @@ func Signup() gin.HandlerFunc {
 			return
 		}
 
-		countEmail, _ := checkUserAlreadyExist(userCtx, "email", *user.Email)
+		// countEmail, _ := checkUserAlreadyExist(userCtx, "email", *user.Email)
+		countEmail, _ := database.CheckUserAlreadyExist(userCtx, "emasil", *user.Email)
 		countPhone, _ := checkUserAlreadyExist(userCtx, "phone", *user.Phone)
 
 		if countEmail > 0 || countPhone > 0 {

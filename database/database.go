@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -46,4 +47,16 @@ func UserData(client *mongo.Client, collectionName string) *mongo.Collection {
 func ProductData(client *mongo.Client, collectionName string) *mongo.Collection {
 	var productCollection *mongo.Collection = client.Database("Ecommerce").Collection(collectionName)
 	return productCollection
+}
+
+var userCollection *mongo.Collection = UserData(Client, "Users")
+
+func CheckUserAlreadyExist(ctx context.Context, field, value string) (count int64, err error) {
+	count, err = userCollection.CountDocuments(ctx, bson.M{field: value})
+	if err != nil {
+		log.Panic(err)
+		fmt.Printf("Error checking for %v", field)
+		return count, err
+	}
+	return count, err
 }
