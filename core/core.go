@@ -22,17 +22,6 @@ var userCollection *mongo.Collection = database.UserData(database.Client, "Users
 var productCollection = database.ProductData(database.Client, "Products")
 var Validate = validator.New()
 
-func checkUserAlreadyExist(ctx context.Context, field, value string) (count int64, err error) {
-
-	count, err = userCollection.CountDocuments(ctx, bson.M{field: value})
-	if err != nil {
-		log.Panic(err)
-		fmt.Printf("Error checking for %v", field)
-		return count, err
-	}
-
-	return count, nil
-}
 
 func Signup() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -51,9 +40,8 @@ func Signup() gin.HandlerFunc {
 			return
 		}
 
-		// countEmail, _ := checkUserAlreadyExist(userCtx, "email", *user.Email)
-		countEmail, _ := database.CheckUserAlreadyExist(userCtx, "emasil", *user.Email)
-		countPhone, _ := checkUserAlreadyExist(userCtx, "phone", *user.Phone)
+		countEmail, _ := database.CheckUserAlreadyExist(userCtx, "email", *user.Email)
+		countPhone, _ := database.CheckUserAlreadyExist(userCtx, "phone", *user.Phone)
 
 		if countEmail > 0 || countPhone > 0 {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "user with this phone number or email already exists"})
